@@ -8,7 +8,6 @@ class Unreal {
 		
 		$data = str_replace( array( "\n", "\r" ), '', $data );
 		
-		//$dataParts = explode( ' ', $data );
 		$data = IRC::split( $data );
 		
 		if( $data[ 'type' ] == 'direct' )
@@ -46,6 +45,37 @@ class Unreal {
 						$user->account = Account::newFromId( $data[ 'pieces' ][ 6 ] );
 
 					event( 'signon', $user );
+			}
+		else if( $data[ 'type' ] == 'relayed' )
+			switch( $data[ 'command' ] ) {
+				case 'nick':
+					break;
+				case 'svsnick':
+					break;
+				case 'quit':
+					break;
+				case 'join':
+					break;
+				case 'part':
+					break;
+				case 'kill':
+					break;
+				case 'svskill':
+					break;
+				case 'mode':
+					break;
+				case 'invite':
+					break;
+				case 'privmsg':
+					break;
+				case 'notice':
+					break;
+				case 'eos':
+					break;
+				case 'kick':
+					break;
+				case 'topic':
+					break;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//// Old stuff                                                                                                           ////
