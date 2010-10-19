@@ -8,26 +8,54 @@ class Unreal {
 		
 		$data = str_replace( array( "\n", "\r" ), '', $data );
 		
-		$dataParts = explode( ' ', $data );
+		//$dataParts = explode( ' ', $data );
+		$data = IRC::split( $data );
 		
-		if( isset( $dataParts[ 0 ] ) )
-			switch( strtolower( $dataParts[ 0 ] ) ) {
+		if( $data[ 'type' ] == 'direct' )
+			switch( $data[ 'command' ] ) {
 				
 				case 'ping':
-					$this->raw( 'PONG ' . $dataParts[ 1 ] );
+					$this->raw( 'PONG :' . $data[ 'pieces' ][ 0 ] );
 					break;
 					
 				case 'nick':
-					$decodedIP = base64_decode( $dataParts[ 10 ] );
+					// NICK scrawl85 1 1287461713 ~scrawl data.searchirc.org theta.cluenet.org 0 +iw * SECRFA== :SearchIRC Crawler
+					// NICK <nick=0> * <timestamp=2> <user=3> <host=4> <server=5> <stamp=6> <modes=7> * <ip=9> <real=10>
+					$binaryIP = base64_decode( $data[ 'pieces' ][ 9 ] );
+					if( strlen( $binaryIP ) > 4 ) {
+						// IPv6
+						$ipParts = Array();
+						for( $i = 0 ; $i < strlen( $binaryIP ) ; $i += 2 )
+							$ipParts[] = dechex( ord( $binaryIP[ $i ] ) << 8 | ord( $binaryIP[ $i + 1 ] ) );
+						$decodedIP = implode( ':', $ipParts ); 
+					} else // IPv4
+						$decodedIP = ord( $binaryIP[ 0 ] ) . '.' . ord( $binaryIP[ 1 ] )
+							. '.' . ord( $binaryIP[ 2 ] ) . '.' . ord( $binaryIP[ 3 ] );
 					
+					$user = User::create(
+						$data[ 'pieces' ][ 0 ], // Nick
+						$data[ 'pieces' ][ 3 ], // User
+						$data[ 'pieces' ][ 4 ], // Hostname
+						$data[ 'pieces' ][ 10 ],// Real name
+						$data[ 'pieces' ][ 7 ], // Modes
+						$decodedIp, // IP
+						Server::newFromName( $data[ 'pieces' ][ 5 ] )
+					);
+					
+					if( $data[ 'pieces' ][ 6 ] != 0 )
+						$user->account = Account::newFromId( $data[ 'pieces' ][ 6 ] );
+
+					event( 'signon', $user );
 			}
-		
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//// Old stuff                                                                                                           ////
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		if( @strtolower( $dataParts[ 0 ] ) == "ping" ) {
 			$this->raw( 'PONG ' . $dataParts[ 1 ] );
 		
 		} elseif( @strtolower( $dataParts[ 0 ] ) == "nick" ) {
-			//                                event('signon', $d_a[1], $d_a[2], $d_a[3], $d_a[4], $d_a[5], $d_a[6], $d_a[7], substr(implode(array_slice($d_a, 8), " "), 1));
-			//				NICK gnarfel 1 1135469324 iseedp2 cpe-24-58-228-168.twcny.res.rr.com powerplace.ath.cx 0 +iwx * :Anthony F
+			// event('signon', $d_a[1], $d_a[2], $d_a[3], $d_a[4], $d_a[5], $d_a[6], $d_a[7], substr(implode(array_slice($d_a, 8), " "), 1));
+			// NICK gnarfel 1 1135469324 iseedp2 cpe-24-58-228-168.twcny.res.rr.com powerplace.ath.cx 0 +iwx * :Anthony F
 			$a = preg_split( '//', base64_decode( $dataParts[ 10 ] ), -1, PREG_SPLIT_NO_EMPTY );
 			foreach( $a as $y => $x ) {
 				$a[ $y ] = ord( $x );

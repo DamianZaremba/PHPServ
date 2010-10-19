@@ -14,6 +14,25 @@
 		protected $server;
 		protected $account;
 		
+		public static function create( $nick, $user, $host, $realName, $modes, $ip, Server $server ) {
+			$newId = Database::insert(
+				'users',
+				Array(
+					'userid'	=> 'NULL',
+					'nick'		=> $nick,
+					'user'		=> $user,
+					'host'		=> $host,
+					'realname'	=> $realName,
+					'ip'		=> $ip,
+					'modes'		=> $modes,
+					'servid'	=> $server->getId()
+				)
+			);
+			if( $newId === false )
+				throw new Exception( "Database insert failed." );
+			return self::newFromId( $newId );
+		}
+		
 		public static function newFromId( $id ) {
 			return self::newFrom( 'id', $id );
 		}
