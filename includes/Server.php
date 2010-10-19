@@ -45,7 +45,17 @@
 		}
 		
 		public static function create( $servName, $servDesc ) {
-			MySQL::insert( 'servers', array( 'name' => $servName, 'description' => $servDesc ) );
+			$newId = MySQL::insert(
+				'servers',
+					array( 'name' => $servName,
+					'description' => $servDesc
+				)
+			);
+			
+			if ( $newId === false )
+				throw new Exception( "Database insert failed." );
+			
+			return self::newFromId( $newId );
 		}
 		
 		public static function remove( $server ) {

@@ -65,6 +65,21 @@
 					return null;
 			}
 		}
+		
+		public function create( $name, $modes, $topic) {
+			$newId = MySQL::insert(
+				'channels',
+				array(
+					'name' => $name,
+					'modes' => $modes,
+					'topic' => $topic
+				)
+			);
+			if( $newId === false)
+				throw new Exception( "Database insert failed.");
+
+			return self::newFromId( $newId );
+		}
 
 		protected function getUsers() {
 			return ChannelUsers::newFromChannel( $this );

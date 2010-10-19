@@ -5,16 +5,21 @@
 		protected $level;
 		
 		public static function create( $id, $userName, $password, $level = 1 ) {
-			$insertData = Array( 
-				'id' => 'NULL',
-				'user' => $userName,
-				'pass' => 'PASSWORD(' . $password . ')',
-				'level' => $level 
+			
+			$newId = MySQL::insert(
+				'access',
+				Array( 
+					'id' => 'NULL',
+					'user' => $userName,
+					'pass' => 'PASSWORD(' . $password . ')',
+					'level' => $level
+				) 
 			);
 			
-			MySQL::insert( 'access', $insertData );
-			
-			return self::newFromUsername( $userName );
+			if ( $newId === false )
+				throw new Exception( "Database insert failed." );
+				
+			return self::newFromId( $id );
 		}
 		
 		public static function newFromId( $id ) {
