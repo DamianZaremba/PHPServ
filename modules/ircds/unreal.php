@@ -196,7 +196,7 @@ class Unreal {
 				$connected = true;
 				global $aml3;
 				$aml3 = 1;
-				$this->smo( 'o', "\002(\002Burst\002)\002 [" . MySQL::getsetting( 'server' ) . "] End of Incomming NetBurst." );
+				$this->smo( 'o', "\002(\002Burst\002)\002 [" . Database::getsetting( 'server' ) . "] End of Incomming NetBurst." );
 				event( 'eos', substr( $dataParts[ 0 ], 1 ) );
 			}
 		} elseif( @strtolower( $dataParts[ 1 ] ) == "kick" ) {
@@ -211,9 +211,9 @@ class Unreal {
 	}
 
 	function event_connected() {
-		$this->raw( 'PASS ' . MySQL::getsetting( 'pass' ) );
+		$this->raw( 'PASS ' . Database::getsetting( 'pass' ) );
 		$this->raw( 'PROTOCTL NICKv2 NICKIP' );
-		$this->raw( 'SERVER ' . MySQL::getsetting( 'server' ) . ' ' . MySQL::getsetting( 'numeric' ) . ' :' . MySQL::getsetting( 'desc' ) );
+		$this->raw( 'SERVER ' . Database::getsetting( 'server' ) . ' ' . Database::getsetting( 'numeric' ) . ' :' . Database::getsetting( 'desc' ) );
 	}
 
 	function raw( $data ) {
@@ -222,11 +222,11 @@ class Unreal {
 	}
 
 	function addserv( $name , $desc ) {
-		$this->raw( ':' . MySQL::getsetting( 'server' ) . ' SERVER ' . $name . ' 2 :' . $desc );
+		$this->raw( ':' . Database::getsetting( 'server' ) . ' SERVER ' . $name . ' 2 :' . $desc );
 	}
 
 	function smo( $mode , $message ) {
-		$this->raw( ':' . MySQL::getsetting( 'server' ) . ' SMO ' . $mode . ' :' . $message );
+		$this->raw( ':' . Database::getsetting( 'server' ) . ' SMO ' . $mode . ' :' . $message );
 	}
 
 	function addserv2serv( $new , $old , $desc ) {
@@ -337,13 +337,13 @@ class Unreal {
 	}
 
 	function svsnick( $old , $new ) {
-		$this->raw( ':' . MySQL::getsetting( 'server' ) . ' SVSNICK ' . $old . ' ' . $new . ' ' . time() );
+		$this->raw( ':' . Database::getsetting( 'server' ) . ' SVSNICK ' . $old . ' ' . $new . ' ' . time() );
 		// Don't emit an event here because the nick message gets echoed back to PHPserv
 	}
 
 	function kill( $nick , $reason ) {
 		$this->raw( 'KILL ' . $nick . ' :' . $reason );
-		event( 'kill', MySQL::getsetting( 'server' ), $nick, $reason );
+		event( 'kill', Database::getsetting( 'server' ), $nick, $reason );
 	}
 
 	function shun( $from , $to , $time , $reason ) {
@@ -365,7 +365,7 @@ class Unreal {
 
 	function svskill( $nick , $reason ) {
 		$this->raw( 'SVSKILL ' . $nick . ' :' . $reason );
-		event( 'svskill', MySQL::getsetting( 'server' ), $nick, $reason );
+		event( 'svskill', Database::getsetting( 'server' ), $nick, $reason );
 	}
 
 	function swhois( $nick , $swhois = '' ) {
@@ -424,7 +424,7 @@ class Unreal {
 				}
 			}
 		} else {
-			$nickdata = MySQL::get( MySQL::sql( 'SELECT * FROM `users` WHERE `nick` = ' . MySQL::escape( $mask ) ) );
+			$nickdata = Database::get( Database::sql( 'SELECT * FROM `users` WHERE `nick` = ' . Database::escape( $mask ) ) );
 			if( is_array( $nickdata ) ) {
 				$usermask = '*';
 				if( ( $type == 'z' ) or ( $type == 'Z' ) ) {
@@ -460,7 +460,7 @@ class Unreal {
 			$secs += time();
 		}
 		
-		$this->tkl( MySQL::getsetting( 'server' ), $mode, $type, $usermask, $hostmask, ( $source == null ) ? 'PHPServ!PHPServ@phpserv.cluenet.org' : $source, $secs, time(), $reason );
+		$this->tkl( Database::getsetting( 'server' ), $mode, $type, $usermask, $hostmask, ( $source == null ) ? 'PHPServ!PHPServ@phpserv.cluenet.org' : $source, $secs, time(), $reason );
 	}
 
 	function tkl( $server , $mode , $type , $ident , $host , $source , $expiry , $set , $reason ) {
@@ -487,13 +487,13 @@ class Unreal {
 	}
 
 	function event_logout( $from ) {
-		$me = MySQL::getsetting( 'server' );
+		$me = Database::getsetting( 'server' );
 		$this->svsmode( $me, $from, '+d 0' );
 		$this->svsmode( $me, $from, '-r' );
 	}
 
 	function event_identify( $from , $uid ) {
-		$me = MySQL::getsetting( 'server' );
+		$me = Database::getsetting( 'server' );
 		$this->svsmode( $me, $from, '+d ' . $uid );
 		$this->svsmode( $me, $from, '+r' );
 	}
