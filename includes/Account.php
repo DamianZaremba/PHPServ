@@ -6,7 +6,7 @@
 		
 		public static function create( $id, $userName, $password, $level = 1 ) {
 			
-			$newId = MySQL::insert(
+			$newId = Database::insert(
 				'access',
 				Array( 
 					'id' => 'NULL',
@@ -31,7 +31,7 @@
 		}
 		
 		protected static function newFrom( $field, $value ) {
-			$userData = MySQL::get( MySQL::sql( 'SELECT * FROM `access` WHERE `' . $field . '` = ' . MySQL::escape( $value ) . ' LIMIT 1' ) );
+			$userData = Database::get( Database::sql( 'SELECT * FROM `access` WHERE `' . $field . '` = ' . Database::escape( $value ) . ' LIMIT 1' ) );
 			
 			if( isset( $userData ) )
 				return new self( $userData[ 'id' ], $userData[ 'username' ], $userData[ 'level' ] );
@@ -58,7 +58,7 @@
 					break;
 					
 				case 'password':
-					MySQL::sql( 'UPDATE `access` SET `password` = PASSWORD(' . MySQL::escape( $value ) . ') WHERE `id` = ' . MySQL::escape( $this->id ) );
+					Database::sql( 'UPDATE `access` SET `password` = PASSWORD(' . Database::escape( $value ) . ') WHERE `id` = ' . Database::escape( $this->id ) );
 					break;
 					
 				default:
@@ -88,7 +88,7 @@
 		}
 		
 		protected function update( $name, $value ) {
-			MySQL::sql( 'UPDATE `access` SET `' . $name . '` = ' . MySQL::escape( $value ) . ' WHERE `id` = ' . MySQL::escape( $this->id ) );
+			Database::sql( 'UPDATE `access` SET `' . $name . '` = ' . Database::escape( $value ) . ' WHERE `id` = ' . Database::escape( $this->id ) );
 			$this->$name = $value;
 		}
 		

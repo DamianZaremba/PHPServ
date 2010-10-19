@@ -13,7 +13,7 @@
 		}
 		
 		protected static function newFrom( $field, $value ) {
-			$servData = MySQL::get( MySQL::sql( 'SELECT * FROM `servers` WHERE ' . $field . ' = ' . MySQL::escape( $value ) ) );
+			$servData = Database::get( Database::sql( 'SELECT * FROM `servers` WHERE ' . $field . ' = ' . Database::escape( $value ) ) );
 			
 			if( $servData ) {
 				return new self(
@@ -45,7 +45,7 @@
 		}
 		
 		public static function create( $servName, $servDesc ) {
-			$newId = MySQL::insert(
+			$newId = Database::insert(
 				'servers',
 					array( 'name' => $servName,
 					'description' => $servDesc
@@ -59,7 +59,7 @@
 		}
 		
 		public static function remove( $server ) {
-			MySQL::sql( 'DELETE FROM `servers` WHERE `servid` = ' . $server->id );
+			Database::sql( 'DELETE FROM `servers` WHERE `servid` = ' . $server->id );
 		}
 	}
 	

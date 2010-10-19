@@ -14,7 +14,7 @@
 		}
 		
 		protected static function newFrom( $field, $value ) {
-			$chanData = MySQL::get( MySQL::sql( 'SELECT * FROM `channels` WHERE ' . $field . ' = ' . MySQL::escape( $value ) ) );
+			$chanData = Database::get( Database::sql( 'SELECT * FROM `channels` WHERE ' . $field . ' = ' . Database::escape( $value ) ) );
 			
 			if( $chanData ) {
 				return new self(
@@ -67,7 +67,7 @@
 		}
 		
 		public function create( $name, $modes, $topic) {
-			$newId = MySQL::insert(
+			$newId = Database::insert(
 				'channels',
 				array(
 					'name' => $name,
@@ -86,7 +86,7 @@
 		}
 					
 		protected function update( $name, $value ) {
-			MySQL::sql( 'UPDATE `channels` SET `' . $name . '` = ' . MySQL::escape( $value ) . ' WHERE `id` = ' . MySQL::escape( $this->id ) );
+			Database::sql( 'UPDATE `channels` SET `' . $name . '` = ' . Database::escape( $value ) . ' WHERE `id` = ' . Database::escape( $this->id ) );
 			$this->$name = $value;
 		}
 	}

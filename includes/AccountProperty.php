@@ -14,22 +14,22 @@
 				'visibility' => $visibility,
 				'section' => $section 
 			);
-			MySQL::insert( 'access_properties', $data, true );
+			Database::insert( 'access_properties', $data, true );
 			return self::newFromAccountSectionKey( $account, $section, $key );
 		}
 		
 		public static function remove( $property ) {
-			MySQL::sql( 'DELETE FROM `access_properties` WHERE `id` = ' . MySQL::escape( $property->id ) );
+			Database::sql( 'DELETE FROM `access_properties` WHERE `id` = ' . Database::escape( $property->id ) );
 		}
 		
 		public static function newFromAccountSectionKey( $account, $section, $key ) {
-			$data = MySQL::get(
-				MySQL::sql(
+			$data = Database::get(
+				Database::sql(
 					'SELECT * '
 					. 'FROM `access_properties` '
-					. 'WHERE `uid` = ' . MySQL::escape( $account->id )
-					. ' AND `key` = ' . MySQL::escape( $key )
-					. ' AND `section` = ' . MySQL::escape( $section )
+					. 'WHERE `uid` = ' . Database::escape( $account->id )
+					. ' AND `key` = ' . Database::escape( $key )
+					. ' AND `section` = ' . Database::escape( $section )
 				)
 			);
 			return new self(
@@ -78,12 +78,12 @@
 		}
 		
 		protected function update( $name, $value ) {
-			MySQL::sql(
+			Database::sql(
 				'UPDATE `access_properties` '
-				. 'SET `' . $name . '` = ' . MySQL::escape( $value )
-				. ' WHERE `uid` = ' . MySQL::escape( $this->account->id )
-				. ' AND `key` = ' . MySQL::escape( $this->key )
-				. ' AND `section` = ' . MySQL::escape( $this->section )
+				. 'SET `' . $name . '` = ' . Database::escape( $value )
+				. ' WHERE `uid` = ' . Database::escape( $this->account->id )
+				. ' AND `key` = ' . Database::escape( $this->key )
+				. ' AND `section` = ' . Database::escape( $this->section )
 			);
 			$this->$name = $value;
 		}

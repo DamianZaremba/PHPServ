@@ -14,24 +14,24 @@
 			
 			$sql = 'SELECT `id` FROM `access_properties` WHERE';
 			
-			$sql .= ' `uid` = ' . MySQL::escape( $this->account->id );
+			$sql .= ' `uid` = ' . Database::escape( $this->account->id );
 			
 			if( $key !== null )
-				$sql .= ' AND `key` = ' . MySQL::escape( $key );
+				$sql .= ' AND `key` = ' . Database::escape( $key );
 			
 			if( $value !== null )
-				$sql .= ' AND `value` = ' . MySQL::escape( $value );
+				$sql .= ' AND `value` = ' . Database::escape( $value );
 			
 			if( $visibility !== null )
-				$sql .= ' AND `visibility` = ' . MySQL::escape( $visibility );
+				$sql .= ' AND `visibility` = ' . Database::escape( $visibility );
 			
 			if( $section !== null )
-				$sql .= ' AND `section` = ' . MySQL::escape( $section );
+				$sql .= ' AND `section` = ' . Database::escape( $section );
 			
-			$result = MySQL::sql( $sql );
+			$result = Database::sql( $sql );
 			$results = Array();
 			
-			while( $row = MySQL::get( $result ) )
+			while( $row = Database::get( $result ) )
 				$results[] = AccountProperty::newFromId( $row[ 'id' ] );
 			
 			return $results;

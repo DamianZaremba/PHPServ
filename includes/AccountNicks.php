@@ -5,8 +5,8 @@
 		
 		public static function newFromAccount( $account ) {
 			$users = Array();
-			$result = MySQL::sql( 'SELECT `id` FROM `users` WHERE `loggedin` = ' . MySQL::escape( $account->id ) );
-			while( $row = MySQL::get( $result ) )
+			$result = Database::sql( 'SELECT `id` FROM `users` WHERE `loggedin` = ' . Database::escape( $account->id ) );
+			while( $row = Database::get( $result ) )
 				$users[] = User::newFromId( $row[ 'id' ] );
 			return new self(
 				$account,
