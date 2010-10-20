@@ -94,7 +94,7 @@ class Unreal {
 				case 'part':
 				// Emit event: part, User $user, Channel $channel, string $reason
 				$channel = Channel::newFromName( $data[ 'target' ] );
-				event( 'part', $user, $channel, $data[ 'pieces' ][0] );
+				event( 'part', $user, $channel, $data[ 'pieces' ] );
 					break;
 	
 				case 'svskill':
@@ -103,41 +103,41 @@ class Unreal {
 				$target = User::newFromName( $data[ 'target' ] );
 				if( $target === null )
 					$target = PHPServBot::newFromName( $data[ 'target' ] );
-				event( 'kill', $user, $victim, $data[ 'pieces'] );
+				event( 'kill', $user, $target, $data[ 'pieces'] );
 					break;
 	
 				case 'mode':
 				// XXX: Unparsed mode event --SnoFox
-				event( 'mode', $user, $data[ 'target' ], $data[ 'pieces' ]);
+				event( 'mode', $user, $data[ 'target' ], $data[ 'pieces' ] );
 					break;
 	
 				case 'invite':
-				event( 'invite', $user, $data[ 'target' ]);
+				event( 'invite', $user, $data[ 'target' ] );
 					break;
 	
 				case 'privmsg':
-				if( $data[ 'target' ][0] == '#') {
+				if( $data[ 'target' ][ 0 ] == '#' ) {
 					$channel = Channel::newFromName( $data[ 'target' ] );
-					event( 'chanmsg', $user, $channel, $data[ 'pieces' ]);
+					event( 'chanmsg', $user, $channel, $data[ 'pieces' ] );
 				} else {
-					$target = PHPServBot::newFromName( $data[ 'target' ]);
-					event( 'privmsg', $user, $target, $data[ 'pieces' ]);
+					$target = PHPServBot::newFromName( $data[ 'target' ] );
+					event( 'privmsg', $user, $target, $data[ 'pieces' ] );
 				}
 					break;
 	
 				case 'notice':
-				if( $data[ 'target' ][0] == '#') {
+				if( $data[ 'target' ][ 0 ] == '#' ) {
 					$channel = Channel::newFromName( $data[ 'target' ] );
-					event( 'channotice', $user, $channel, $data[ 'pieces' ]);
+					event( 'channotice', $user, $channel, $data[ 'pieces' ] );
 				} else {
-					$target = PHPServBot::newFromName( $data[ 'target' ]);
-					event( 'notice', $user, $target, $data[ 'pieces' ]);
+					$target = PHPServBot::newFromName( $data[ 'target' ] );
+					event( 'notice', $user, $target, $data[ 'pieces' ] );
 				}
 					break;
 	
 				case 'kick':
 					$target = User::newFromNick( $data[ 'target' ] );
-					if( $target === null)
+					if( $target === null )
 						$target = PHPServBot::newFromName( $data[ 'target' ] );
 						
 				event( 'kick', $data[ 'target' ], $target, $data[ 'pieces' ] );
