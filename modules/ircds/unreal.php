@@ -37,7 +37,7 @@ class Unreal {
 						$data[ 'pieces' ][ 4 ], // Hostname
 						$data[ 'pieces' ][ 10 ],// Real name
 						$data[ 'pieces' ][ 7 ], // Modes
-						$decodedIp, // IP
+						$decodedIP, // IP
 						Server::newFromName( $data[ 'pieces' ][ 5 ] )
 					);
 					
@@ -45,36 +45,107 @@ class Unreal {
 						$user->account = Account::newFromId( $data[ 'pieces' ][ 6 ] );
 
 					event( 'signon', $user );
+					break;
+	
+				case 'eos':
+					event( 'eos' );
+					break;
 			}
 		else if( $data[ 'type' ] == 'relayed' )
+			// There's probably a better way to do this...
+			// Two Database lookups for a server-source? --SnoFox
+			// Three if you count PHPserv bot sources! :\
+			// But I figured something above the switch would be better
+			//   than searching for the source every case...
+			//   Maybe it wouldn't be that bad, though...
+			$src = explode( '!', $data[ 'source' ], 1 );
+			
+			$user = User::newFromNick( $src );
+			
+			if( $user === null)
+				$user = PHPServBot::newFromName( $src );
+				
+			if( $user === null)
+				$user = Server::newFromName( $src );
+				
+			if( $user === null )
+				logit('Got ' . $data[ 'command' ] . 'command from unknown source ' . $data[ 'source' ] );
+			// End search for better ways
+			
 			switch( $data[ 'command' ] ) {
+				// "Docs" provided here are wrong ^.^
 				case 'nick':
-					break;
 				case 'svsnick':
+				// Emit event: nick, User $user, string $newNick
+				event( 'nick', $user, $data[ 'target' ] );
 					break;
+	
 				case 'quit':
+				// Emit event: quit, User $user, string $reason
+				event( 'quit', $user, $data[ 'pieces' ] );
 					break;
+	
 				case 'join':
+				// Emit event: join, User $user, Channel $channel
+				$channel = Channel::newFromName( $data[ 'target' ] );
+				event( 'join', $user, $channel );
 					break;
+	
 				case 'part':
+				// Emit event: part, User $user, Channel $channel, string $reason
+				$channel = Channel::newFromName( $data[ 'target' ] );
+				event( 'part', $user, $channel, $data[ 'pieces' ][0] );
 					break;
-				case 'kill':
-					break;
+	
 				case 'svskill':
+				case 'kill':
+				// Emit event: kill, User $src, $pwntUser, string $reason
+				$target = User::newFromName( $data[ 'target' ] );
+				if( $target === null )
+					$target = PHPServBot::newFromName( $data[ 'target' ] );
+				event( 'kill', $user, $victim, $data[ 'pieces'] );
 					break;
+	
 				case 'mode':
+				// XXX: Unparsed mode event --SnoFox
+				event( 'mode', $user, $data[ 'target' ], $data[ 'pieces' ]);
 					break;
+	
 				case 'invite':
+				event( 'invite', $user, $data[ 'target' ]);
 					break;
+	
 				case 'privmsg':
+				if( $data[ 'target' ][0] == '#') {
+					$channel = Channel::newFromName( $data[ 'target' ] );
+					event( 'chanmsg', $user, $channel, $data[ 'pieces' ]);
+				} else {
+					$target = PHPServBot::newFromName( $data[ 'target' ]);
+					event( 'privmsg', $user, $target, $data[ 'pieces' ]);
+				}
 					break;
+	
 				case 'notice':
+				if( $data[ 'target' ][0] == '#') {
+					$channel = Channel::newFromName( $data[ 'target' ] );
+					event( 'channotice', $user, $channel, $data[ 'pieces' ]);
+				} else {
+					$target = PHPServBot::newFromName( $data[ 'target' ]);
+					event( 'notice', $user, $target, $data[ 'pieces' ]);
+				}
 					break;
-				case 'eos':
-					break;
+	
 				case 'kick':
+					$target = User::newFromNick( $data[ 'target' ] );
+					if( $target === null)
+						$target = PHPServBot::newFromName( $data[ 'target' ] );
+						
+				event( 'kick', $data[ 'target' ], $target, $data[ 'pieces' ] );
 					break;
+	
 				case 'topic':
+				$channel = Channel::newFromName( $data[ 'target' ] );
+				event( 'topic', $user, $channel. $data[ 'pieces' ] );
 					break;
 			}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
