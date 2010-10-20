@@ -1,3 +1,0 @@
-# This file is mainly a test of SVN commits
-<Cobi> SnoFox: Also, some of the includes/*.php need a public static function create() like Server.php.  In fact, I want these to do an insert and return the object (return self::newFromId( <id of record in database> );)
-<Cobi> Database::insert()'s return value is the ID of the insert if successful.

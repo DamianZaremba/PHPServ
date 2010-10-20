@@ -9,11 +9,11 @@ Legend:
 ------------------
 [+] AccountNicks class
 [+] AccountProperties class
-[ ] Rewrite IRC protocol module
+[-] Rewrite IRC protocol module
 [-]  `-More network state awareness
 [?]    |-User awayness (good for MemoServ notices on un-/away)
-[?]    |-Detection of netbursts
-[ ]    `-What nicks PHPserv has introduced (less likely to accidentally collide)
+[ ]    |-Detection of netbursts
+[-]    `-What nicks PHPserv has introduced (less likely to accidentally collide)
 [ ] Port PHPserv 1.0-stable modules
 [ ] |-PHPserv
 [ ] |-BotServ
@@ -48,7 +48,7 @@ Legend:
 [ ] |-MemoServ
 [ ] | |-Read/unread status
 [ ] | |-Cancel unread
-[ ] | |-Memo reciept on/off
+[ ] | |-Memo receipt on/off
 [ ] | |-Notice on:
     |  |-Identify to account
     |  |-Un-/away
