@@ -100,34 +100,34 @@ class Unreal {
 					break;
 	
 				case 'mode':
-					if( $data[ 'target' ][ 0 ] == '#') {
+					if( $data[ 'target' ][ 0 ] == '#' ) {
 						$channel = Channel::newFromName( $data[ 'target' ] );
 						$modeData = IRC::parseMode( $data[ 'pieces' ], 'channel' );
-						for($x = 0; $x < count($modeData); $x++) {
+						for( $x = 0; $x < count( $modeData ); $x++ ) {
 							event( 'chanmode_' . $modeData[ $x ][ 'mode' ],
 								$channel,
-								$modeData[ $x ][ 'adding'],
-								isset($modeData[ $x ][ 'params' ]) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
+								$modeData[ $x ][ 'adding' ],
+								isset( $modeData[ $x ][ 'params' ] ) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
 							);
 						}
 						event( 'chanmode', $user, $channel, $data[ 'pieces' ] );
 					} else {
 						$target == NULL;
 						// Check here to see if it's just a normal umode change to prevent an extra, pointless Database query --SnoFox
-						if( $user->get('nick') != $data[ 'target' ]) {
+						if( $user->get( 'nick' ) != $data[ 'target' ] ) {
 							$target = User::newFromNick( $data[ 'target' ] );
 							// This check may be uneccessary
-							if ($target == NULL)
+							if ( $target == NULL )
 								$target = PHPServBot::newFromNick( $data[ 'target' ] );
-							if ($target == NULL)
-								logit('Got usermode to unknown source: ' . $data[ 'target' ] );
+							if ( $target == NULL )
+								logit( 'Got usermode to unknown source: ' . $data[ 'target' ] );
 						}
 						$modeData = IRC::parseMode( $data[ 'pieces' ], 'user' );
-						for($x = 0; $x < count($modeData); $x++) {
+						for($x = 0; $x < count( $modeData ); $x++ ) {
 							event( 'usermode_' . $modeData[ $x ][ 'mode' ],
 								$channel,
-								$modeData[ $x ][ 'adding'],
-								isset($modeData[ $x ][ 'params' ]) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
+								$modeData[ $x ][ 'adding' ],
+								isset($modeData[ $x ][ 'params' ] ) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
 							);
 						}
 						event( 'usermode', $user, $target, $data[ 'pieces' ] );
