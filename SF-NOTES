@@ -30,3 +30,10 @@ Array(
 	'target' => '#clueirc',
 	'pieces' => Array( '+mbte', '*!*@*.eu', 'nathan!*@*' )
 );
+
+/* Todo */
+<Cobi> List modes are stored in a seperate table.
+<Cobi> Flag modes are stored in the channel table with the channel record.
+<Cobi> Parameter modes ... have no place to store them right now.
+<Cobi> Might want to make abstract class Mode, then make children ListMode, FlagMode, and ParamMode.
+<Cobi> And PrefixMode.

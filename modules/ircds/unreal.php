@@ -68,7 +68,7 @@ class Unreal {
 				$user = Server::newFromName( $data[ 'source' ] );
 				
 			if( $user === null )
-				logit('Got ' . $data[ 'command' ] . 'command from unknown source ' . $data[ 'source' ] );
+				logit('Got ' . $data[ 'command' ] . ' command from unknown source ' . $data[ 'source' ] );
 			// End search for better ways
 			
 			switch( $data[ 'command' ] ) {
@@ -127,7 +127,7 @@ class Unreal {
 							event( 'usermode_' . $modeData[ $x ][ 'mode' ],
 								$channel,
 								$modeData[ $x ][ 'adding' ],
-								isset($modeData[ $x ][ 'params' ] ) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
+								isset( $modeData[ $x ][ 'params' ] ) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
 							);
 						}
 						event( 'usermode', $user, $target, $data[ 'pieces' ] );
@@ -205,8 +205,23 @@ class Unreal {
 		} else {
 			throw new Exception('What kinds of modes are there other than channel and user...?');
 		}
-	}
-}
+	} // function getValidModes
+	
+	function isValidNick( $nick ) {
+		return preg_match( '#^[a-zA-Z\\\\[\]{}][a-zA-Z0-9\x2d\x5b-\x5e\x60\x7b\7d]*$#', $nick );
+	} // function isValidNick
+
+	function isValidHost( $host ) {
+		$validity = preg_match( '/[^-a-z\d.]/i', $host );
+		// Since the function is "is it a valid host?", reverse the return value from preg_match()
+		switch( $validity ) {
+			case 1:
+				return 0;
+			case 0:
+				return 1;
+		}
+	} // function isValidHost
+} // class Unreal
 			
 			
 			
@@ -636,20 +651,7 @@ class Unreal {
 		$this->raw( 'SVSO ' . $nick . ' ' . $mode );
 	}
 
-	function isValidNick( $nick ) {
-		return preg_match( '#^[a-zA-Z\\\\[\]{}][a-zA-Z0-9\x2d\x5b-\x5e\x60\x7b\7d]*$#', $nick );
-	}
 
-	function isValidHost( $host ) {
-		$validity = preg_match( '/[^-a-z\d.]/i', $host );
-		// Since the function is "is it a valid host", reverse the return value from preg_match()
-		switch( $validity ) {
-			case 1:
-				return 0;
-			case 0:
-				return 1;
-		}
-	}
 
 	function event_logout( $from ) {
 		$me = Database::getsetting( 'server' );

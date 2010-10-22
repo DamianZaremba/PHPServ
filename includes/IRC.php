@@ -144,8 +144,8 @@
 			$adding = TRUE;
 			$return = array();
 			
-			for( $x = 0; $x < strlen( $modes ); $x++) {
-					if ( $modes[ $x ] == '+' ) {
+			for( $x = 0; $x < strlen( $modes ); $x++ ) {
+					if( $modes[ $x ] == '+' ) {
 						$adding = TRUE;
 						continue;
 					} elseif ( $modes[ $x ] == '-' ) {
@@ -153,23 +153,23 @@
 						continue;
 					}
 					
-					if (strpos( $modeList[ 'params' ], $modes[ $x ]) or
-						strpos( $modeList[ 'prefix' ], $modes[ $x ]) or
-					 	(strpos( $modeList[ 'paramset' ], $modes[ $x ]) and $adding)) {
+					if( strpos( $modeList[ 'params' ], $modes[ $x ] ) or
+						strpos( $modeList[ 'prefix' ], $modes[ $x ] ) or
+					 	( strpos( $modeList[ 'paramset' ], $modes[ $x ] ) and $adding ) ) {
 						$return[] = array(
 										'mode'	=> $modes[ $x ],
 										'param'	=> $modeData[ $param ],
 										'adding'=> $adding
 									);
 						$param++;
-					} elseif (strpos( $modeList[ 'paramset' ], $modes[ $x ] ) and !$adding or
-								(strpos( $modeList[ 'flag' ], $modes[ $x ] ) !== FALSE)) {
+					} elseif( strpos( $modeList[ 'paramset' ], $modes[ $x ] ) and !$adding or
+								( strpos( $modeList[ 'flag' ], $modes[ $x ] ) !== FALSE ) ) {
 						$return[] = array(
 										'mode'	=> $modes[ $x ],
 										'adding'=> $adding
 									);
 					} else {
-						logit('Got unknown '. $type . ' mode: '. $modes[ $x ] . '. Pretending it\'s a flag-type mode...');
+						logit( 'Got unknown '. $type . ' mode: '. $modes[ $x ] . '. Pretending it\'s a flag-type mode...' );
 						$return[] = array(
 										'mode'	=> $modes[ $x ],
 										'adding'=> $adding
