@@ -9,7 +9,7 @@
  * 		--SnoFox
  */
 abstract class IRCd {
-	protected abstract function raw ( $string );
+	protected abstract function raw( $string );
 	/* Standard user functions */
 	public abstract function join( PHPServBot $from, Channel $channel );
 	public abstract function part( PHPServBot $from, Channel $channel, $message = '' );
@@ -17,7 +17,7 @@ abstract class IRCd {
 	public abstract function mode( PHPServBot $from, Channel $channel, Mode $mode );
 	public abstract function invite( PHPServBot $from, User $user, Channel $channel );
 	public abstract function topic( PHPServBot $from, Channel $channel, $newTopic );
-	public abstract function nick( PHPServBot $from, $to, $timestamp = time() );
+	public abstract function nick( PHPServBot $from, $to, $timestamp = null );
 	public abstract function quit( PHPServBot $from, $message );
 	// Messages
 	public abstract function privmsg( PHPServBot $from, User $user, $message );
@@ -39,6 +39,12 @@ abstract class IRCd {
 	/* Other random odds and ends */
 	public abstract function isValidNick( $nick );
 	public abstract function isValidHost( $hostname );
-	 
+	
+	public static function __callStatic( $name, $arguments ) {
+		if( function_exists( Array( getmod( 'ircd' ), $name ) ) )
+			return call_user_func_array( Array( getmod( 'ircd' ), $name ), $arguments );
+		logit( 'Error!  Bad!  Call to IRCd::' . $name . '(\'' . implode( '\', \'', $arguments ) . '\'); does not exist.  Returning void.' );
+		return;
+	}
 }
 ?>
