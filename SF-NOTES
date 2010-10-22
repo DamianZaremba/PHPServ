@@ -1,0 +1,32 @@
+:Foo PRIVMSG #clueirc :My Message.
+Array(
+    'type' => 'relayed',
+    'rawpieces' => Array(
+        'Foo',
+        'PRIVMSG',
+        '#clueirc',
+        'My Message.'
+    ),
+    'source' => 'Foo',
+    'command' => 'PRIVMSG',
+    'target' => '#clueirc',
+    'pieces' => Array( 'My Message.' )
+);
+
+
+:SnoFox MODE #clueirc +mbte *!*@*.eu nathan!*@*
+Array(
+	'type' => 'relayed',
+	'rawpieces' => Array(
+		'SnoFox',
+		'MODE',
+		'#clueirc',
+		'+mbte',
+		'*!*@*.eu',
+		'nathan!*@*'
+	),
+	'source' => 'SnoFox'
+	'command' => 'MODE'
+	'target' => '#clueirc',
+	'pieces' => Array( '+mbte', '*!*@*.eu', 'nathan!*@*' )
+);

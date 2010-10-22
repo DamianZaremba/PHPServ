@@ -1,7 +1,7 @@
 <?PHP
 
 class Unreal {
-
+	
 	private static $connected;
 
 	function event_raw_in( $data ) {
@@ -10,7 +10,7 @@ class Unreal {
 		
 		$data = IRC::split( $data );
 		
-		if( $data[ 'type' ] == 'direct' )
+		if( $data[ 'type' ] == 'direct' ) {
 			switch( $data[ 'command' ] ) {
 				
 				case 'ping':
@@ -51,103 +51,166 @@ class Unreal {
 					event( 'eos' );
 					break;
 			}
-		else if( $data[ 'type' ] == 'relayed' )
+		} else if( $data[ 'type' ] == 'relayed' ) {
 			// There's probably a better way to do this...
-			// Two Database lookups for a server-source? --SnoFox
+			// Two Database lookups for a server-source?
 			// Three if you count PHPserv bot sources! :\
 			// But I figured something above the switch would be better
 			//   than searching for the source every case...
-			//   Maybe it wouldn't be that bad, though...
-			$src = explode( '!', $data[ 'source' ], 1 );
-			
-			$user = User::newFromNick( $src );
+			//   Maybe it wouldn't be that bad, though... --SnoFox
+
+			$user = User::newFromNick( $data[ 'source' ] );
 			
 			if( $user === null)
-				$user = PHPServBot::newFromName( $src );
+				$user = PHPServBot::newFromName( $data[ 'source' ] );
 				
 			if( $user === null)
-				$user = Server::newFromName( $src );
+				$user = Server::newFromName( $data[ 'source' ] );
 				
 			if( $user === null )
 				logit('Got ' . $data[ 'command' ] . 'command from unknown source ' . $data[ 'source' ] );
 			// End search for better ways
 			
 			switch( $data[ 'command' ] ) {
-				// "Docs" provided here are wrong ^.^
 				case 'nick':
 				case 'svsnick':
-				// Emit event: nick, User $user, string $newNick
-				event( 'nick', $user, $data[ 'target' ] );
+					event( 'nick', $user, $data[ 'target' ] );
 					break;
 	
 				case 'quit':
-				// Emit event: quit, User $user, string $reason
-				event( 'quit', $user, $data[ 'pieces' ] );
+					event( 'quit', $user, $data[ 'pieces' ][ 0 ] );
 					break;
 	
 				case 'join':
-				// Emit event: join, User $user, Channel $channel
-				$channel = Channel::newFromName( $data[ 'target' ] );
-				event( 'join', $user, $channel );
+					$channel = Channel::newFromName( $data[ 'target' ] );
+					event( 'join', $user, $channel );
 					break;
 	
 				case 'part':
-				// Emit event: part, User $user, Channel $channel, string $reason
 				$channel = Channel::newFromName( $data[ 'target' ] );
-				event( 'part', $user, $channel, $data[ 'pieces' ] );
+					event( 'part', $user, $channel, $data[ 'pieces' ][ 0 ] );
 					break;
 	
 				case 'svskill':
 				case 'kill':
-				// Emit event: kill, User $src, $pwntUser, string $reason
-				$target = User::newFromName( $data[ 'target' ] );
-				if( $target === null )
-					$target = PHPServBot::newFromName( $data[ 'target' ] );
-				event( 'kill', $user, $target, $data[ 'pieces'] );
+					$target = User::newFromName( $data[ 'target' ] );
+					if( $target === null )
+						$target = PHPServBot::newFromName( $data[ 'target' ] );
+					event( 'kill', $user, $target, $data[ 'pieces' ][ 0 ] );
 					break;
 	
 				case 'mode':
-				// XXX: Unparsed mode event --SnoFox
-				event( 'mode', $user, $data[ 'target' ], $data[ 'pieces' ] );
+					if( $data[ 'target' ][ 0 ] == '#') {
+						$channel = Channel::newFromName( $data[ 'target' ] );
+						$modeData = IRC::parseMode( $data[ 'pieces' ], 'channel' );
+						for($x = 0; $x < count($modeData); $x++) {
+							event( 'chanmode_' . $modeData[ $x ][ 'mode' ],
+								$channel,
+								$modeData[ $x ][ 'adding'],
+								isset($modeData[ $x ][ 'params' ]) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
+							);
+						}
+						event( 'chanmode', $user, $channel, $data[ 'pieces' ] );
+					} else {
+						$target == NULL;
+						// Check here to see if it's just a normal umode change to prevent an extra, pointless Database query --SnoFox
+						if( $user->get('nick') != $data[ 'target' ]) {
+							$target = User::newFromNick( $data[ 'target' ] );
+							// This check may be uneccessary
+							if ($target == NULL)
+								$target = PHPServBot::newFromNick( $data[ 'target' ] );
+							if ($target == NULL)
+								logit('Got usermode to unknown source: ' . $data[ 'target' ] );
+						}
+						$modeData = IRC::parseMode( $data[ 'pieces' ], 'user' );
+						for($x = 0; $x < count($modeData); $x++) {
+							event( 'usermode_' . $modeData[ $x ][ 'mode' ],
+								$channel,
+								$modeData[ $x ][ 'adding'],
+								isset($modeData[ $x ][ 'params' ]) === TRUE ? $modeData[ $x ][ 'params' ] : FALSE
+							);
+						}
+						event( 'usermode', $user, $target, $data[ 'pieces' ] );
+					}
 					break;
 	
 				case 'invite':
-				event( 'invite', $user, $data[ 'target' ] );
+					event( 'invite', $user, $data[ 'target' ] );
 					break;
 	
 				case 'privmsg':
-				if( $data[ 'target' ][ 0 ] == '#' ) {
-					$channel = Channel::newFromName( $data[ 'target' ] );
-					event( 'chanmsg', $user, $channel, $data[ 'pieces' ] );
-				} else {
-					$target = PHPServBot::newFromName( $data[ 'target' ] );
-					event( 'privmsg', $user, $target, $data[ 'pieces' ] );
-				}
+					if( $data[ 'target' ][ 0 ] == '#' ) {
+						$channel = Channel::newFromName( $data[ 'target' ] );
+						event( 'chanmsg', $user, $channel, $data[ 'pieces' ][ 0 ] );
+					} else {
+						$target = PHPServBot::newFromName( $data[ 'target' ] );
+						event( 'privmsg', $user, $target, $data[ 'pieces' ][ 0 ] );
+					}
 					break;
 	
 				case 'notice':
-				if( $data[ 'target' ][ 0 ] == '#' ) {
-					$channel = Channel::newFromName( $data[ 'target' ] );
-					event( 'channotice', $user, $channel, $data[ 'pieces' ] );
-				} else {
-					$target = PHPServBot::newFromName( $data[ 'target' ] );
-					event( 'notice', $user, $target, $data[ 'pieces' ] );
-				}
+					if( $data[ 'target' ][ 0 ] == '#' ) {
+						$channel = Channel::newFromName( $data[ 'target' ] );
+						event( 'channotice', $user, $channel, $data[ 'pieces' ] );
+					} else {
+						$target = PHPServBot::newFromName( $data[ 'target' ] );
+						event( 'notice', $user, $target, $data[ 'pieces' ] );
+					}
 					break;
 	
 				case 'kick':
-					$target = User::newFromNick( $data[ 'target' ] );
+					$channel = Channel::newFromName( $data[ 'target' ] );
+					$target = User::getFromNick( $data[ 'pieces' ][ 0 ] );
 					if( $target === null )
-						$target = PHPServBot::newFromName( $data[ 'target' ] );
+						$target = PHPServBot::newFromName( $data[ 'pieces' ][ 0 ] );
 						
-				event( 'kick', $data[ 'target' ], $target, $data[ 'pieces' ] );
+					event( 'kick', $channel, $target, $data[ 'pieces' ][ 1 ] );
 					break;
 	
 				case 'topic':
-				$channel = Channel::newFromName( $data[ 'target' ] );
-				event( 'topic', $user, $channel. $data[ 'pieces' ] );
+					$channel = Channel::newFromName( $data[ 'target' ] );
+					event( 'topic', $user, $channel. $data[ 'pieces' ][ 0 ] );
 					break;
 			}
+		}
+	}
+	
+	function getValidModes( $type ) {
+		/*
+		 * Mode types:
+		 * list:		list modes, like bans and ban exceptions
+		 * paramset:	requires a parameter to set, but not to unset
+		 * param:		requires a parameter to set and unset
+		 * flag:		requires no parameters
+		 * prefix:		like Op, halfop, voice...
+		 */
+		 
+		// beI,kfL,lj,psmntirRcOAQKVCuzNSMTGy
+		// Oddly, Unreal places modes f & L in "requires param to unset" but doesn't enforce it (Unreal 3.2.8.1)
+		if( $type == 'channel') {
+			return array(
+				'list'			=> 'beI',
+				'paramset'		=> 'fljL',
+				'param'			=> 'k',
+				'flag'			=> 'psmntirRcOAQKVCuzNSMTGy',
+				'prefix'		=> 'qaohv'
+				);
+		} elseif( $type == 'user' ) {
+			// oOaANC dghipqrstvwxzBGHRSTVW
+			return array(
+				'paramset'		=> 's',
+				'param'			=> '',
+				'flag'			=> 'oOaANCdghipqrtvwxzBGHRSTVW'
+			);
+		} else {
+			throw new Exception('What kinds of modes are there other than channel and user...?');
+		}
+	}
+}
+			
+			
+			
+		
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//// Old stuff                                                                                                           ////
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,6 +255,7 @@ class Unreal {
 			event( 'svskill', substr( $dataParts[ 0 ], 1 ), $dataParts[ 2 ], substr( implode( ' ', array_slice( $dataParts, 3 ) ), 1 ) );
 		
 		} elseif( @strtolower( $dataParts[ 1 ] ) == "mode" ) {
+			// :SnoFox MODE #clueirc +mbte *!*@*b00b* nathan!*@* 
 			$modeline = implode( ' ', array_slice( $dataParts, 3 ) );
 			if( $modeline{ 0 } == ':' )
 				$modeline = substr( $modeline, 1 );

@@ -142,6 +142,7 @@
 			
 			$param = 1;
 			$adding = TRUE;
+			$return = array();
 			
 			for( $x = 0; $x < strlen( $modes ); $x++) {
 					if ( $modes[ $x ] == '+' ) {
@@ -161,23 +162,21 @@
 										'adding'=> $adding
 									);
 						$param++;
-						continue;
 					} elseif (strpos( $modeList[ 'paramset' ], $modes[ $x ] ) and !$adding or
 								(strpos( $modeList[ 'flag' ], $modes[ $x ] ) !== FALSE)) {
 						$return[] = array(
 										'mode'	=> $modes[ $x ],
 										'adding'=> $adding
 									);
-						continue;									
 					} else {
 						logit('Got unknown '. $type . ' mode: '. $modes[ $x ] . '. Pretending it\'s a flag-type mode...');
 						$return[] = array(
 										'mode'	=> $modes[ $x ],
 										'adding'=> $adding
 									);
-						continue;
 					} //else
 			} // for
+			return $return;
 		} // function parseMode
 	} // class IRC
 ?>
