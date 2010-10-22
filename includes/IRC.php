@@ -131,5 +131,53 @@
 			$return[ 'raw' ] = $message;
 			return $return;
 		}
-	}
+		public static function parseMode( $modeData, $type ) {
+			// :SnoFox MODE #clueirc +mbte *!*@*.eu nathan!*@*
+			// $modeData = Array('+mbte', '*!*@*.eu', 'nathan!*@*')
+			
+			$modes = $modeData[ 0 ];
+			//$modes = '+mbte'
+			
+			$modeList = IRCd::getValidModes( $type );
+			
+			$param = 1;
+			$adding = TRUE;
+			
+			for( $x = 0; $x < strlen( $modes ); $x++) {
+					if ( $modes[ $x ] == '+' ) {
+						$adding = TRUE;
+						continue;
+					} elseif ( $modes[ $x ] == '-' ) {
+						$adding = FALSE;
+						continue;
+					}
+					
+					if (strpos( $modeList[ 'params' ], $modes[ $x ]) or
+						strpos( $modeList[ 'prefix' ], $modes[ $x ]) or
+					 	(strpos( $modeList[ 'paramset' ], $modes[ $x ]) and $adding)) {
+						$return[] = array(
+										'mode'	=> $modes[ $x ],
+										'param'	=> $modeData[ $param ],
+										'adding'=> $adding
+									);
+						$param++;
+						continue;
+					} elseif (strpos( $modeList[ 'paramset' ], $modes[ $x ] ) and !$adding or
+								(strpos( $modeList[ 'flag' ], $modes[ $x ] ) !== FALSE)) {
+						$return[] = array(
+										'mode'	=> $modes[ $x ],
+										'adding'=> $adding
+									);
+						continue;									
+					} else {
+						logit('Got unknown '. $type . ' mode: '. $modes[ $x ] . '. Pretending it\'s a flag-type mode...');
+						$return[] = array(
+										'mode'	=> $modes[ $x ],
+										'adding'=> $adding
+									);
+						continue;
+					} //else
+			} // for
+		} // function parseMode
+	} // class IRC
 ?>
